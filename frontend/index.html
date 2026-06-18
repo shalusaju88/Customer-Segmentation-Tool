@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Segmentation Tool — AI-Powered RFM Clustering</title>
+  <meta name="description" content="Upload your customer transaction data and instantly segment your audience using RFM analysis and K-Means clustering. Visualize and export customer segments." />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js for 2D/elbow charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <!-- Plotly.js for 3D scatter -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+
+  <!-- Animated background orbs -->
+  <div class="bg-orbs">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Analyzing your customers…</p>
+    <div class="loading-steps">
+      <div class="step" id="step-clean">⏳ Cleaning data…</div>
+      <div class="step" id="step-rfm">⏳ Computing RFM scores…</div>
+      <div class="step" id="step-cluster">⏳ Running K-Means clustering…</div>
+      <div class="step" id="step-profile">⏳ Profiling segments…</div>
+    </div>
+  </div>
+
+  <!-- Error toast -->
+  <div class="error-toast" id="errorToast"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ═══ Header ═══ -->
+    <header class="app-header">
+      <div class="badge">🤖 AI-Powered Analytics</div>
+      <h1>Customer Segmentation</h1>
+      <p>Upload your transaction CSV and discover actionable customer segments using RFM analysis &amp; machine learning.</p>
+    </header>
+
+    <!-- ═══ Upload Section ═══ -->
+    <section class="upload-section glass-card glow" id="uploadSection">
+      <div class="section-title">
+        <span class="icon">📁</span>
+        Upload &amp; Configure
+      </div>
+
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">📁</div>
+        <h3>Drag &amp; drop your dataset here</h3>
+        <p>or <span class="browse-link">browse files</span> — Supports .csv, .xlsx, .xls, or .zip up to 50 MB</p>
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="display:none" />
+      </div>
+
+      <div class="file-info" id="fileInfo">
+        <div class="file-icon">✅</div>
+        <div class="file-details">
+          <div class="file-name" id="fileName">—</div>
+          <div class="file-size" id="fileSize">—</div>
+        </div>
+        <button class="remove-btn" id="removeFileBtn" title="Remove file">✕</button>
+      </div>
+
+      <div class="controls-row">
+        <div class="control-group">
+          <label for="clusterSlider">Number of Clusters (K)</label>
+          <div class="slider-wrap">
+            <input type="range" id="clusterSlider" min="2" max="8" value="4" step="1" />
+            <span class="slider-value" id="clusterValue">4</span>
+          </div>
+        </div>
+        <button class="btn-primary" id="runBtn" disabled>
+          🚀 Run Segmentation
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══ Results ═══ -->
+    <section class="results-section" id="resultsSection">
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-card">
+          <div class="stat-value" id="statRows">—</div>
+          <div class="stat-label">Transactions Processed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCleaned">—</div>
+          <div class="stat-label">Rows Cleaned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCustomers">—</div>
+          <div class="stat-label">Unique Customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statClusters">—</div>
+          <div class="stat-label">Segments Found</div>
+        </div>
+      </div>
+
+      <!-- Cluster Profiles -->
+      <div class="glass-card" style="margin-bottom: var(--space-8);">
+        <div class="section-title">
+          <span class="icon">👥</span>
+          Customer Segments
+        </div>
+        <div class="profiles-grid" id="profilesGrid"></div>
+      </div>
+
+      <!-- Elbow Method -->
+      <div class="viz-section glass-card" id="elbowSection" style="margin-top: var(--space-8);">
+        <div class="section-title">
+          <span class="icon">📐</span>
+          Step 3: Elbow Method — Optimal Number of Clusters
+        </div>
+        <p style="color:var(--text-secondary);font-size:var(--font-sm);margin-bottom:var(--space-4)">
+          The elbow point marks where adding more clusters gives diminishing returns. The chosen K is highlighted.
+        </p>
+        <div class="chart-container" style="height:300px">
+          <canvas id="elbowChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 3D Visualization -->
+      <div class="viz-section glass-card" style="margin-top: var(--space-8);">
+        <div class="section-title">
+          <span class="icon">🧊</span>
+          Step 5: 3D RFM Cluster Scatter (Recency × Frequency × Monetary)
+        </div>
+        <p style="color:var(--text-secondary);font-size:var(--font-sm);margin-bottom:var(--space-4)">
+          Each point is a customer. RFM features are log-transformed (to handle highly right-skewed distributions and massive outliers) and normalized using StandardScaler so all features have equal weight.
+        </p>
+        <div id="scatter3d" style="width:100%;height:500px;"></div>
+      </div>
+
+      <!-- 2D PCA Visualization -->
+      <div class="viz-section glass-card">
+        <div class="section-title">
+          <span class="icon">📊</span>
+          Cluster Visualization (PCA 2D Projection)
+        </div>
+        <div class="chart-container">
+          <canvas id="clusterChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Customer Table -->
+      <div class="table-section glass-card" style="margin-top: var(--space-8);">
+        <div class="section-title">
+          <span class="icon">📋</span>
+          Customer Details
+        </div>
+
+        <div class="table-controls">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search by Customer ID…" />
+          <select class="filter-select" id="segmentFilter">
+            <option value="">All Segments</option>
+          </select>
+          <button class="btn-secondary" id="downloadBtn">⬇ Download CSV</button>
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-table" id="customerTable">
+            <thead>
+              <tr>
+                <th data-sort="customerid">Customer ID</th>
+                <th data-sort="recency">Recency (days)</th>
+                <th data-sort="frequency">Frequency</th>
+                <th data-sort="monetary">Monetary ($)</th>
+                <th data-sort="segment">Segment</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      Customer Segmentation Tool &middot; Powered by RFM Analysis &amp; K-Means Clustering
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
