@@ -47,7 +47,9 @@
   let sortAsc = false;
   const scatter3dEl = document.getElementById("scatter3d");
 
-  const API_URL = "http://localhost:5000/api/segment";
+  const API_URL = window.location.protocol.startsWith("http")
+    ? "/api/segment"
+    : "http://localhost:5000/api/segment";
 
   // ─── Utility ───
   function formatNumber(n) {
@@ -61,23 +63,21 @@
   }
 
   function showError(msg) {
+    console.error("Showing error toast:", msg);
     errorToast.textContent = msg;
     errorToast.classList.add("visible");
     setTimeout(() => errorToast.classList.remove("visible"), 6000);
   }
 
   // ─── File Upload ───
-  // The uploadZone div click is a direct user gesture → fileInput.click() is allowed.
-  uploadZone.addEventListener("click", function (e) {
-    // Prevent any parent elements from re-triggering this
-    e.stopPropagation();
-    fileInput.click();
-  });
+  // Note: Since uploadZone is a <label for="fileInput">, clicking it automatically
+  // triggers fileInput.click() natively. No JS click handler is needed.
 
   // Keyboard accessibility: Enter or Space opens the picker
   uploadZone.addEventListener("keydown", function (e) {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
+      console.log("Keyboard interaction on uploadZone: triggering fileInput.click()");
       fileInput.click();
     }
   });
@@ -96,19 +96,26 @@
     e.preventDefault();
     e.stopPropagation();
     uploadZone.classList.remove("dragover");
+    console.log("File dropped onto uploadZone, files:", e.dataTransfer.files);
     if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
 
   // File selected from dialog
   fileInput.addEventListener("change", function () {
-    if (fileInput.files.length) handleFile(fileInput.files[0]);
+    console.log("fileInput change event fired. Files count:", fileInput.files.length);
+    if (fileInput.files.length) {
+      console.log("Selected file via dialog:", fileInput.files[0].name);
+      handleFile(fileInput.files[0]);
+    }
   });
 
   function handleFile(file) {
+    console.log("handleFile: Processing file:", file.name, "Size:", file.size, "Type:", file.type);
     const name = file.name.toLowerCase();
     const validExtensions = [".csv", ".xlsx", ".xls", ".zip"];
     const isValid = validExtensions.some((ext) => name.endsWith(ext));
     if (!isValid) {
+      console.warn("handleFile: Invalid file extension for:", name);
       showError("Please upload a .csv, .xlsx, .xls, or .zip file.");
       return;
     }
@@ -119,12 +126,14 @@
     } else {
       fileSize.textContent = (file.size / 1024).toFixed(1) + " KB";
     }
+    console.log("handleFile: Validation successful. Showing file info, hiding upload zone.");
     fileInfo.classList.add("visible");
     uploadZone.style.display = "none";
     runBtn.disabled = false;
   }
 
   removeFileBtn.addEventListener("click", () => {
+    console.log("removeFileBtn clicked: Resetting selected file.");
     selectedFile = null;
     fileInput.value = "";
     fileInfo.classList.remove("visible");
@@ -139,7 +148,11 @@
 
   // ─── Run Segmentation ───
   runBtn.addEventListener("click", async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.warn("Run Segmentation clicked but no file selected.");
+      return;
+    }
+    console.log("Run Segmentation clicked. Initializing upload and analysis steps...");
 
     // Show loading
     loadingOverlay.classList.add("active");
@@ -169,8 +182,11 @@
       formData.append("file", selectedFile);
       formData.append("clusters", clusterSlider.value);
 
+      console.log("Sending POST request to API_URL:", API_URL);
       const response = await fetch(API_URL, { method: "POST", body: formData });
+      console.log("Response status code received:", response.status);
       const data = await response.json();
+      console.log("Response data parsed:", !!data);
 
       clearInterval(stepInterval);
 
@@ -185,8 +201,10 @@
         el.textContent = "⏳" + el.textContent.slice(1);
       });
 
+      console.log("Rendering segmentation results...");
       renderResults(data);
     } catch (err) {
+      console.error("Error during segmentation processing:", err);
       showError(err.message);
     } finally {
       loadingOverlay.classList.remove("active");
