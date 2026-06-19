@@ -70,8 +70,12 @@
   }
 
   // ─── File Upload ───
-  // Note: Since uploadZone is a <label for="fileInput">, clicking it automatically
-  // triggers fileInput.click() natively. No JS click handler is needed.
+  // Clicking the uploadZone (div) triggers the hidden fileInput programmatically
+  uploadZone.addEventListener("click", function (e) {
+    e.stopPropagation();
+    console.log("Mouse/touch interaction on uploadZone: triggering fileInput.click()");
+    fileInput.click();
+  });
 
   // Keyboard accessibility: Enter or Space opens the picker
   uploadZone.addEventListener("keydown", function (e) {
@@ -569,19 +573,26 @@
       return;
     }
 
-    let html = `<button ${currentPage === 1 ? "disabled" : ""} data-page="${currentPage - 1}">‹</button>`;
+    const startItem = (currentPage - 1) * PAGE_SIZE + 1;
+    const endItem = Math.min(currentPage * PAGE_SIZE, filteredCustomers.length);
+    let html = `<div>Showing ${startItem} to ${endItem} of ${filteredCustomers.length} entries</div>`;
+
+    html += `<div class="pagination-btn-group">`;
+    html += `<button class="pg-btn" ${currentPage === 1 ? "disabled" : ""} data-page="${currentPage - 1}">‹</button>`;
 
     // Show max 7 page buttons
     const pages = computeVisiblePages(currentPage, totalPages, 7);
     pages.forEach((p) => {
       if (p === "…") {
-        html += `<span class="page-info">…</span>`;
+        html += `<span class="page-info pg-btn" style="border:none; background:transparent;">…</span>`;
       } else {
-        html += `<button class="${p === currentPage ? "active" : ""}" data-page="${p}">${p}</button>`;
+        html += `<button class="pg-btn ${p === currentPage ? "active" : ""}" data-page="${p}">${p}</button>`;
       }
     });
 
-    html += `<button ${currentPage === totalPages ? "disabled" : ""} data-page="${currentPage + 1}">›</button>`;
+    html += `<button class="pg-btn" ${currentPage === totalPages ? "disabled" : ""} data-page="${currentPage + 1}">›</button>`;
+    html += `</div>`;
+    
     paginationEl.innerHTML = html;
   }
 
