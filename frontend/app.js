@@ -67,7 +67,9 @@
   }
 
   // ─── File Upload ───
-  uploadZone.addEventListener("click", () => fileInput.click());
+  // Note: uploadZone is a <label for="fileInput">, so clicking it natively
+  // opens the file picker. No JS click() call needed — that would be blocked
+  // by browsers as an untrusted programmatic event.
   uploadZone.addEventListener("dragover", (e) => {
     e.preventDefault();
     uploadZone.classList.add("dragover");

@@ -142,6 +142,7 @@ body {
 }
 
 .upload-zone {
+  display: block;
   border: 2px dashed var(--border-color);
   background-color: var(--bg-primary);
   border-radius: 8px;
@@ -149,6 +150,7 @@ body {
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .upload-zone:hover, .upload-zone.dragover {
