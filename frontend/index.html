@@ -49,13 +49,16 @@
       <section class="upload-section" id="uploadSection">
         <div class="section-label">📁 STEP 01 — DATA INPUT</div>
         
-        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="display:none" />
-        <label for="fileInput" class="upload-zone" id="uploadZone">
+        <!-- Hidden file input OUTSIDE the clickable zone -->
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;z-index:-1" />
+        
+        <!-- Upload zone: clicking this opens the file dialog via JS -->
+        <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload dataset file">
           <span class="upload-icon">📂</span>
-          <h3>Drag & Drop Dataset</h3>
+          <h3>Drag &amp; Drop Dataset</h3>
           <p>or <span class="browse-link">Browse Files</span></p>
-          <div class="file-formats">Supports .csv, .xlsx, .xls, .zip · Max 50 MB</div>
-        </label>
+          <div class="file-formats">Supports .csv, .xlsx, .xls, .zip &middot; Max 50 MB</div>
+        </div>
 
         <div class="file-info" id="fileInfo">
           <div class="file-status">

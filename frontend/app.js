@@ -67,20 +67,40 @@
   }
 
   // ─── File Upload ───
-  // Note: uploadZone is a <label for="fileInput">, so clicking it natively
-  // opens the file picker. No JS click() call needed — that would be blocked
-  // by browsers as an untrusted programmatic event.
-  uploadZone.addEventListener("dragover", (e) => {
+  // The uploadZone div click is a direct user gesture → fileInput.click() is allowed.
+  uploadZone.addEventListener("click", function (e) {
+    // Prevent any parent elements from re-triggering this
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  // Keyboard accessibility: Enter or Space opens the picker
+  uploadZone.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+
+  // Drag and drop
+  uploadZone.addEventListener("dragover", function (e) {
     e.preventDefault();
+    e.stopPropagation();
     uploadZone.classList.add("dragover");
   });
-  uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-  uploadZone.addEventListener("drop", (e) => {
+  uploadZone.addEventListener("dragleave", function (e) {
+    e.stopPropagation();
+    uploadZone.classList.remove("dragover");
+  });
+  uploadZone.addEventListener("drop", function (e) {
     e.preventDefault();
+    e.stopPropagation();
     uploadZone.classList.remove("dragover");
     if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
-  fileInput.addEventListener("change", () => {
+
+  // File selected from dialog
+  fileInput.addEventListener("change", function () {
     if (fileInput.files.length) handleFile(fileInput.files[0]);
   });
 
