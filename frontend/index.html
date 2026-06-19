@@ -49,8 +49,10 @@
       <section class="upload-section" id="uploadSection">
         <div class="section-label">📁 STEP 01 — DATA INPUT</div>
         
-        <!-- Hidden file input OUTSIDE the clickable zone -->
-        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;z-index:-1" />
+        <!-- Hidden file input — display:none is safe here because it is BEFORE
+             uploadZone in the DOM. Clicks on uploadZone cannot bubble into
+             fileInput, so there is no infinite-loop risk. -->
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="display:none" />
         
         <!-- Upload zone: clicking this opens the file dialog via JS -->
         <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload dataset file">
