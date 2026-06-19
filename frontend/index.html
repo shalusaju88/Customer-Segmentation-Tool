@@ -6,6 +6,10 @@
   <title>Customer Segmentation Tool — AI-Powered RFM Clustering</title>
   <meta name="description" content="Upload your customer transaction data and instantly segment your audience using RFM analysis and K-Means clustering. Visualize and export customer segments." />
   <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts Link for Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Chart.js for 2D/elbow charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <!-- Plotly.js for 3D scatter -->
@@ -13,185 +17,212 @@
 </head>
 <body>
 
-  <!-- Animated background orbs -->
-  <div class="bg-orbs">
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-  </div>
-
   <!-- Loading overlay -->
   <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <p>Analyzing your customers…</p>
-    <div class="loading-steps">
-      <div class="step" id="step-clean">⏳ Cleaning data…</div>
-      <div class="step" id="step-rfm">⏳ Computing RFM scores…</div>
-      <div class="step" id="step-cluster">⏳ Running K-Means clustering…</div>
-      <div class="step" id="step-profile">⏳ Profiling segments…</div>
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <h3>Processing Dataset</h3>
+      <p>Running RFM calculations and K-Means clustering...</p>
+      <div class="loading-steps">
+        <div class="step" id="step-clean">⬜ CLEANING DATA…</div>
+        <div class="step" id="step-rfm">⬜ COMPUTING RFM SCORES…</div>
+        <div class="step" id="step-cluster">⬜ RUNNING K-MEANS CLUSTERING…</div>
+        <div class="step" id="step-profile">⬜ PROFILING SEGMENTS…</div>
+      </div>
     </div>
   </div>
 
   <!-- Error toast -->
   <div class="error-toast" id="errorToast"></div>
 
-  <div class="app-wrapper">
+  <div class="app-container">
 
-    <!-- ═══ Header ═══ -->
-    <header class="app-header">
-      <div class="badge">🤖 AI-Powered Analytics</div>
-      <h1>Customer Segmentation</h1>
-      <p>Upload your transaction CSV and discover actionable customer segments using RFM analysis &amp; machine learning.</p>
-    </header>
-
-    <!-- ═══ Upload Section ═══ -->
-    <section class="upload-section glass-card glow" id="uploadSection">
-      <div class="section-title">
-        <span class="icon">📁</span>
-        Upload &amp; Configure
+    <!-- ═══ SIDEBAR (LEFT PANEL) ═══ -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-badge">🤖 AI Analytics</div>
+        <h1 class="sidebar-title">Customer Segmentation</h1>
+        <p class="sidebar-desc">Discover high-value groups, loyal buyers, and at-risk clients using machine learning.</p>
       </div>
 
-      <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">📁</div>
-        <h3>Drag &amp; drop your dataset here</h3>
-        <p>or <span class="browse-link">browse files</span> — Supports .csv, .xlsx, .xls, or .zip up to 50 MB</p>
-        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="display:none" />
-      </div>
-
-      <div class="file-info" id="fileInfo">
-        <div class="file-icon">✅</div>
-        <div class="file-details">
-          <div class="file-name" id="fileName">—</div>
-          <div class="file-size" id="fileSize">—</div>
+      <!-- Upload Section -->
+      <section class="upload-section" id="uploadSection">
+        <div class="section-label">📁 STEP 01 — DATA INPUT</div>
+        
+        <div class="upload-zone" id="uploadZone">
+          <span class="upload-icon">📂</span>
+          <h3>Drag & Drop Dataset</h3>
+          <p>or <span class="browse-link">Browse Files</span></p>
+          <div class="file-formats">Supports .csv, .xlsx, .xls, .zip · Max 50 MB</div>
+          <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.zip" style="display:none" />
         </div>
-        <button class="remove-btn" id="removeFileBtn" title="Remove file">✕</button>
+
+        <div class="file-info" id="fileInfo">
+          <div class="file-status">
+            <span class="check-icon">✓</span>
+            <div class="file-details">
+              <div class="file-name" id="fileName">—</div>
+              <div class="file-size" id="fileSize">—</div>
+            </div>
+          </div>
+          <button class="remove-btn" id="removeFileBtn" title="Remove file">✕</button>
+        </div>
+
+        <div class="config-controls">
+          <div class="control-group">
+            <label for="clusterSlider">Number of Clusters (K)</label>
+            <div class="slider-wrap">
+              <input type="range" id="clusterSlider" min="2" max="8" value="4" step="1" />
+              <span class="slider-value" id="clusterValue">4</span>
+            </div>
+          </div>
+          <button class="btn-primary" id="runBtn" disabled>
+            ⚡ Run Segmentation
+          </button>
+        </div>
+      </section>
+
+      <div class="sidebar-info-card">
+        <h4>💡 Quick Tips</h4>
+        <ul>
+          <li>Upload your retail order records or clean customer RFM values.</li>
+          <li>Set clusters (K) dynamically; use the Elbow Method chart in the results to find the sweet spot.</li>
+        </ul>
       </div>
 
-      <div class="controls-row">
-        <div class="control-group">
-          <label for="clusterSlider">Number of Clusters (K)</label>
-          <div class="slider-wrap">
-            <input type="range" id="clusterSlider" min="2" max="8" value="4" step="1" />
-            <span class="slider-value" id="clusterValue">4</span>
+      <div class="sidebar-footer">
+        <p>&copy; 2026 Customer Segmentation Tool</p>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT AREA (RIGHT PANEL) ═══ -->
+    <main class="main-content">
+
+      <!-- Results Section -->
+      <section class="results-section" id="resultsSection">
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar">
+          <div class="stat-card">
+            <div class="stat-value" id="statRows">—</div>
+            <div class="stat-label">Transactions Processed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statCleaned">—</div>
+            <div class="stat-label">Rows Cleaned</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statCustomers">—</div>
+            <div class="stat-label">Unique Customers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statClusters">—</div>
+            <div class="stat-label">Segments Found</div>
           </div>
         </div>
-        <button class="btn-primary" id="runBtn" disabled>
-          🚀 Run Segmentation
-        </button>
-      </div>
-    </section>
 
-    <!-- ═══ Results ═══ -->
-    <section class="results-section" id="resultsSection">
+        <!-- Segment Profiles -->
+        <section class="profiles-section">
+          <div class="section-label">👥 STEP 02 — SEGMENT PROFILES</div>
+          <h2 class="section-title">Customer Segment Characteristics</h2>
+          <div class="profiles-grid" id="profilesGrid"></div>
+        </section>
 
-      <!-- Stats Bar -->
-      <div class="stats-bar" id="statsBar">
-        <div class="stat-card">
-          <div class="stat-value" id="statRows">—</div>
-          <div class="stat-label">Transactions Processed</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statCleaned">—</div>
-          <div class="stat-label">Rows Cleaned</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statCustomers">—</div>
-          <div class="stat-label">Unique Customers</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="statClusters">—</div>
-          <div class="stat-label">Segments Found</div>
-        </div>
-      </div>
+        <!-- Charts Grid (Elbow and 2D Cluster) -->
+        <div class="charts-grid">
+          <section class="viz-section" id="elbowSection">
+            <div class="section-label">📐 STEP 03 — MODEL SELECTION</div>
+            <h2 class="section-title">Elbow Method — Optimal K Selection</h2>
+            <p class="section-desc">Identifies when adding another cluster yields diminishing returns in variance reduction.</p>
+            <div class="chart-container">
+              <canvas id="elbowChart"></canvas>
+            </div>
+          </section>
 
-      <!-- Cluster Profiles -->
-      <div class="glass-card" style="margin-bottom: var(--space-8);">
-        <div class="section-title">
-          <span class="icon">👥</span>
-          Customer Segments
-        </div>
-        <div class="profiles-grid" id="profilesGrid"></div>
-      </div>
-
-      <!-- Elbow Method -->
-      <div class="viz-section glass-card" id="elbowSection" style="margin-top: var(--space-8);">
-        <div class="section-title">
-          <span class="icon">📐</span>
-          Step 3: Elbow Method — Optimal Number of Clusters
-        </div>
-        <p style="color:var(--text-secondary);font-size:var(--font-sm);margin-bottom:var(--space-4)">
-          The elbow point marks where adding more clusters gives diminishing returns. The chosen K is highlighted.
-        </p>
-        <div class="chart-container" style="height:300px">
-          <canvas id="elbowChart"></canvas>
-        </div>
-      </div>
-
-      <!-- 3D Visualization -->
-      <div class="viz-section glass-card" style="margin-top: var(--space-8);">
-        <div class="section-title">
-          <span class="icon">🧊</span>
-          Step 5: 3D RFM Cluster Scatter (Recency × Frequency × Monetary)
-        </div>
-        <p style="color:var(--text-secondary);font-size:var(--font-sm);margin-bottom:var(--space-4)">
-          Each point is a customer. RFM features are log-transformed (to handle highly right-skewed distributions and massive outliers) and normalized using StandardScaler so all features have equal weight.
-        </p>
-        <div id="scatter3d" style="width:100%;height:500px;"></div>
-      </div>
-
-      <!-- 2D PCA Visualization -->
-      <div class="viz-section glass-card">
-        <div class="section-title">
-          <span class="icon">📊</span>
-          Cluster Visualization (PCA 2D Projection)
-        </div>
-        <div class="chart-container">
-          <canvas id="clusterChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Customer Table -->
-      <div class="table-section glass-card" style="margin-top: var(--space-8);">
-        <div class="section-title">
-          <span class="icon">📋</span>
-          Customer Details
+          <section class="viz-section">
+            <div class="section-label">📊 STEP 05 — 2D PROJECTION</div>
+            <h2 class="section-title">PCA 2D Cluster Visualization</h2>
+            <p class="section-desc">Principal Component Analysis (PCA) maps 3D RFM metrics into 2D space for clean plotting.</p>
+            <div class="chart-container">
+              <canvas id="clusterChart"></canvas>
+            </div>
+          </section>
         </div>
 
-        <div class="table-controls">
-          <input type="text" class="search-input" id="searchInput" placeholder="Search by Customer ID…" />
-          <select class="filter-select" id="segmentFilter">
-            <option value="">All Segments</option>
-          </select>
-          <button class="btn-secondary" id="downloadBtn">⬇ Download CSV</button>
-        </div>
+        <!-- 3D Visualization -->
+        <section class="viz-section scatter3d-container">
+          <div class="section-label">🧊 STEP 04 — 3D SPACE</div>
+          <h2 class="section-title">3D RFM Cluster Interactive Scatter</h2>
+          <p class="section-desc">Interactive representation of individual customers across scaled Recency, Frequency, and Monetary scores.</p>
+          <div id="scatter3d" style="width:100%;height:500px;"></div>
+        </section>
 
-        <div class="data-table-wrapper">
-          <table class="data-table" id="customerTable">
-            <thead>
-              <tr>
-                <th data-sort="customerid">Customer ID</th>
-                <th data-sort="recency">Recency (days)</th>
-                <th data-sort="frequency">Frequency</th>
-                <th data-sort="monetary">Monetary ($)</th>
-                <th data-sort="segment">Segment</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
+        <!-- Customer Table -->
+        <section class="table-section">
+          <div class="section-label">📋 STEP 06 — CUSTOMER DETAILS</div>
+          <h2 class="section-title">All Customer Details</h2>
 
-        <div class="pagination" id="pagination"></div>
+          <div class="table-controls">
+            <div class="search-box">
+              <input type="text" class="search-input" id="searchInput" placeholder="Search by Customer ID…" />
+            </div>
+            <div class="filter-actions">
+              <select class="filter-select" id="segmentFilter">
+                <option value="">All Segments</option>
+              </select>
+              <button class="btn-secondary" id="downloadBtn">⬇ Download CSV</button>
+            </div>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th data-sort="customerid">Customer ID</th>
+                  <th data-sort="recency">Recency (days)</th>
+                  <th data-sort="frequency">Frequency</th>
+                  <th data-sort="monetary">Monetary ($)</th>
+                  <th data-sort="segment">Segment</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </section>
+
+      </section><!-- /resultsSection -->
+
+      <!-- Welcome View (Default before upload) -->
+      <div class="welcome-view" id="welcomeView">
+        <div class="welcome-card">
+          <div class="welcome-icon">📈</div>
+          <h2>Customer Segmentation Dashboard</h2>
+          <p>Configure parameters and upload your dataset file in the left sidebar to start analysis.</p>
+          <div class="welcome-features">
+            <div class="w-feature">
+              <span class="w-feat-icon">⚡</span>
+              <h4>RFM Analysis</h4>
+              <p>Computes Recency, Frequency, and Monetary scores for all customers.</p>
+            </div>
+            <div class="w-feature">
+              <span class="w-feat-icon">🤖</span>
+              <h4>K-Means Machine Learning</h4>
+              <p>Clusters customers into distinct behavioral segments automatically.</p>
+            </div>
+            <div class="w-feature">
+              <span class="w-feat-icon">📊</span>
+              <h4>Interactive Visualization</h4>
+              <p>Explore segments in interactive 2D projections and 3D space.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-    </section>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-      Customer Segmentation Tool &middot; Powered by RFM Analysis &amp; K-Means Clustering
-    </footer>
+    </main>
 
   </div>
 
-  <script src="app.js"></script>
 </body>
 </html>

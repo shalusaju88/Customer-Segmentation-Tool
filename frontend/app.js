@@ -135,6 +135,8 @@
       }
       if (stepIdx < steps.length) {
         document.getElementById(steps[stepIdx]).classList.add("active");
+        document.getElementById(steps[stepIdx]).textContent =
+          "▶ " + document.getElementById(steps[stepIdx]).textContent.slice(2);
       }
       stepIdx++;
       if (stepIdx > steps.length) clearInterval(stepInterval);
@@ -169,10 +171,10 @@
       // Reset loading step icons for next run
       const stepEls = ["step-clean", "step-rfm", "step-cluster", "step-profile"];
       const defaultTexts = [
-        "⏳ Cleaning data…",
-        "⏳ Computing RFM scores…",
-        "⏳ Running K-Means clustering…",
-        "⏳ Profiling segments…",
+        "⬜ CLEANING DATA…",
+        "⬜ COMPUTING RFM SCORES…",
+        "⬜ RUNNING K-MEANS CLUSTERING…",
+        "⬜ PROFILING SEGMENTS…",
       ];
       stepEls.forEach((id, i) => {
         const el = document.getElementById(id);
@@ -273,7 +275,7 @@
     const labels = elbowData.map((d) => "K=" + d.k);
     const values = elbowData.map((d) => d.inertia);
     const pointColors = elbowData.map((d) =>
-      d.k === chosenK ? "#f59e0b" : "rgba(139,92,246,0.5)"
+      d.k === chosenK ? "#ef4444" : "#4f46e5"
     );
     const pointRadii = elbowData.map((d) => (d.k === chosenK ? 10 : 5));
 
@@ -283,16 +285,18 @@
         labels,
         datasets: [
           {
-            label: "Inertia (Within-cluster sum of squares)",
+            label: "Inertia (Within-Cluster Sum of Squares)",
             data: values,
-            borderColor: "#8b5cf6",
-            backgroundColor: "rgba(139,92,246,0.08)",
+            borderColor: "#4f46e5",
+            backgroundColor: "rgba(79, 70, 229, 0.05)",
             pointBackgroundColor: pointColors,
+            pointBorderColor: pointColors,
             pointRadius: pointRadii,
             pointHoverRadius: 10,
             borderWidth: 2,
             fill: true,
-            tension: 0.35,
+            tension: 0.3,
+            pointStyle: "circle",
           },
         ],
       },
@@ -302,20 +306,24 @@
         plugins: {
           legend: {
             labels: {
-              color: "#94a3b8",
-              font: { family: "'Inter', sans-serif", size: 12 },
+              color: "#334155",
+              font: { family: "'Inter', sans-serif", size: 12, weight: "500" },
             },
           },
           tooltip: {
-            backgroundColor: "rgba(17,24,39,0.95)",
-            titleColor: "#f1f5f9",
+            backgroundColor: "#0f172a",
+            titleColor: "#ffffff",
             bodyColor: "#94a3b8",
+            borderColor: "#334155",
+            borderWidth: 1,
             cornerRadius: 8,
             padding: 12,
+            titleFont: { family: "'Inter', sans-serif", size: 12, weight: "600" },
+            bodyFont:  { family: "'Inter', sans-serif", size: 11 },
             callbacks: {
               afterLabel: (ctx) => {
                 const k = elbowData[ctx.dataIndex].k;
-                return k === chosenK ? " ⭐ Your chosen K" : "";
+                return k === chosenK ? " ★ Chosen K" : "";
               },
             },
           },
@@ -323,17 +331,17 @@
         },
         scales: {
           x: {
-            ticks: { color: "#64748b", font: { family: "'Inter'" } },
-            grid: { color: "rgba(255,255,255,0.04)" },
-            title: { display: true, text: "Number of Clusters (K)", color: "#64748b" },
+            ticks: { color: "#64748b", font: { family: "'Inter', sans-serif" } },
+            grid: { color: "#f1f5f9" },
+            title: { display: true, text: "Number of Clusters (K)", color: "#475569", font: { family: "'Inter', sans-serif", size: 11, weight: "500" } },
           },
           y: {
-            ticks: { color: "#64748b", font: { family: "'Inter'" } },
-            grid: { color: "rgba(255,255,255,0.04)" },
-            title: { display: true, text: "Inertia", color: "#64748b" },
+            ticks: { color: "#64748b", font: { family: "'Inter', sans-serif" } },
+            grid: { color: "#f1f5f9" },
+            title: { display: true, text: "Inertia", color: "#475569", font: { family: "'Inter', sans-serif", size: 11, weight: "500" } },
           },
         },
-        animation: { duration: 800, easing: "easeOutQuart" },
+        animation: { duration: 600, easing: "easeOutQuart" },
       },
     });
   }
@@ -369,38 +377,38 @@
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor:  "rgba(0,0,0,0)",
       scene: {
-        bgcolor: "rgba(17,24,39,0.5)",
+        bgcolor: "#f8fafc",
         xaxis: {
-          title: { text: "Recency (normalized)", font: { color: "#94a3b8", family: "Inter" } },
-          tickfont: { color: "#64748b" },
-          gridcolor: "rgba(255,255,255,0.03)",
-          zerolinecolor: "rgba(255,255,255,0.08)",
+          title: { text: "RECENCY", font: { color: "#475569", family: "Inter, sans-serif", size: 10, weight: "bold" } },
+          tickfont: { color: "#64748b", family: "Inter, sans-serif", size: 9 },
+          gridcolor: "#e2e8f0",
+          zerolinecolor: "#cbd5e1",
         },
         yaxis: {
-          title: { text: "Frequency (normalized)", font: { color: "#94a3b8", family: "Inter" } },
-          tickfont: { color: "#64748b" },
-          gridcolor: "rgba(255,255,255,0.03)",
-          zerolinecolor: "rgba(255,255,255,0.08)",
+          title: { text: "FREQUENCY", font: { color: "#475569", family: "Inter, sans-serif", size: 10, weight: "bold" } },
+          tickfont: { color: "#64748b", family: "Inter, sans-serif", size: 9 },
+          gridcolor: "#e2e8f0",
+          zerolinecolor: "#cbd5e1",
         },
         zaxis: {
-          title: { text: "Monetary (normalized)", font: { color: "#94a3b8", family: "Inter" } },
-          tickfont: { color: "#64748b" },
-          gridcolor: "rgba(255,255,255,0.03)",
-          zerolinecolor: "rgba(255,255,255,0.08)",
+          title: { text: "MONETARY", font: { color: "#475569", family: "Inter, sans-serif", size: 10, weight: "bold" } },
+          tickfont: { color: "#64748b", family: "Inter, sans-serif", size: 9 },
+          gridcolor: "#e2e8f0",
+          zerolinecolor: "#cbd5e1",
         },
       },
       legend: {
         orientation: "h",
         yanchor: "bottom",
-        y: -0.12,
+        y: -0.1,
         xanchor: "center",
         x: 0.5,
-        font: { color: "#94a3b8", family: "Inter", size: 12 },
-        bgcolor: "rgba(17,24,39,0.8)",
-        bordercolor: "rgba(255,255,255,0.1)",
+        font: { color: "#334155", family: "Inter, sans-serif", size: 11 },
+        bgcolor: "rgba(255,255,255,0.9)",
+        bordercolor: "#e2e8f0",
         borderwidth: 1,
       },
-      margin: { l: 0, r: 0, t: 30, b: 40 },
+      margin: { l: 0, r: 0, t: 10, b: 20 },
     };
 
     Plotly.react(scatter3dEl, traces, layout, {
@@ -449,38 +457,38 @@
           legend: {
             position: "top",
             labels: {
-              color: "#94a3b8",
-              font: { family: "'Inter', sans-serif", size: 12, weight: "600" },
-              padding: 16,
+              color: "#334155",
+              font: { family: "'Inter', sans-serif", size: 12, weight: "500" },
+              padding: 20,
               usePointStyle: true,
               pointStyle: "circle",
             },
           },
           tooltip: {
-            backgroundColor: "rgba(17,24,39,0.95)",
-            titleColor: "#f1f5f9",
+            backgroundColor: "#0f172a",
+            titleColor: "#ffffff",
             bodyColor: "#94a3b8",
-            borderColor: "rgba(255,255,255,0.1)",
+            borderColor: "#334155",
             borderWidth: 1,
             padding: 12,
             cornerRadius: 8,
-            titleFont: { family: "'Inter', sans-serif", weight: "700" },
-            bodyFont:  { family: "'Inter', sans-serif" },
+            titleFont: { family: "'Inter', sans-serif", weight: "600", size: 12 },
+            bodyFont:  { family: "'Inter', sans-serif", size: 11 },
           },
         },
         scales: {
           x: {
-            title: { display: true, text: "PCA Component 1", color: "#64748b" },
-            grid: { color: "rgba(255,255,255,0.04)" },
-            ticks: { color: "#64748b" },
+            title: { display: true, text: "PCA Component 1", color: "#475569", font: { family: "'Inter', sans-serif", size: 11, weight: "500" } },
+            grid: { color: "#f1f5f9" },
+            ticks: { color: "#64748b", font: { family: "'Inter', sans-serif" } },
           },
           y: {
-            title: { display: true, text: "PCA Component 2", color: "#64748b" },
-            grid: { color: "rgba(255,255,255,0.04)" },
-            ticks: { color: "#64748b" },
+            title: { display: true, text: "PCA Component 2", color: "#475569", font: { family: "'Inter', sans-serif", size: 11, weight: "500" } },
+            grid: { color: "#f1f5f9" },
+            ticks: { color: "#64748b", font: { family: "'Inter', sans-serif" } },
           },
         },
-        animation: { duration: 1000, easing: "easeOutQuart" },
+        animation: { duration: 800, easing: "easeOutQuart" },
       },
     });
   }
