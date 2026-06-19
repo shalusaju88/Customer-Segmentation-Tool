@@ -15,6 +15,25 @@ An AI-powered full-stack web application that automatically segments customers f
 - **Responsive UI:** Premium dark theme with glassmorphism effects, optimized for both desktop and mobile devices.
 - **Export Capabilities:** Download your segmented customer list as a clean CSV.
 
+## Project Structure
+
+```
+Customer-Segmentation-Tool/
+├── backend/
+│   ├── app.py                  # Flask API server (main entry point)
+│   ├── rfm_analysis.py         # Standalone RFM computation pipeline
+│   ├── generate_sample_data.py # Script to generate sample CSV data
+│   └── run_segmentation.py     # Test script for the API endpoint
+├── frontend/
+│   ├── index.html              # Main dashboard UI
+│   ├── style.css               # Premium dark theme with glassmorphism
+│   └── app.js                  # Frontend logic (charts, upload, table)
+├── data/
+│   └── Customer_Segmentation_Explained.pdf  # Reference document
+├── .gitignore
+└── README.md
+```
+
 ## Architecture
 
 - **Backend:** Python / Flask (`backend/app.py`)
