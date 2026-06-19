@@ -15,30 +15,29 @@ An AI-powered full-stack web application that automatically segments customers f
 - **Responsive UI:** Premium dark theme with glassmorphism effects, optimized for both desktop and mobile devices.
 - **Export Capabilities:** Download your segmented customer list as a clean CSV.
 
-## Project Structure
-
-```
-Customer-Segmentation-Tool/
-├── backend/
-│   ├── app.py                  # Flask API server (main entry point)
-│   ├── rfm_analysis.py         # Standalone RFM computation pipeline
-│   ├── generate_sample_data.py # Script to generate sample CSV data
-│   └── run_segmentation.py     # Test script for the API endpoint
-├── frontend/
-│   ├── index.html              # Main dashboard UI
-│   ├── style.css               # Premium dark theme with glassmorphism
-│   └── app.js                  # Frontend logic (charts, upload, table)
-├── data/
-│   └── Customer_Segmentation_Explained.pdf  # Reference document
-├── .gitignore
-└── README.md
-```
-
 ## Architecture
 
 - **Backend:** Python / Flask (`backend/app.py`)
 - **Frontend:** HTML, CSS, JavaScript (`frontend/`)
 - **Machine Learning:** scikit-learn, pandas, numpy
+
+## Repository Structure & File Map
+
+```text
+Customer-Segmentation-Tool/
+├── backend/
+│   ├── app.py                  # Main Flask backend application and REST API endpoints
+│   ├── rfm_analysis.py         # RFM calculation, scaling, K-Means clustering, and segment labeling logic
+│   ├── generate_sample_data.py # Script to generate mock customer transaction records for testing
+│   └── run_segmentation.py     # CLI script to run RFM analysis on a dataset directly from terminal
+├── data/                       # Workspace directory for raw and processed datasets (ignored in git)
+├── frontend/
+│   ├── index.html              # Dashboard user interface (HTML structure)
+│   ├── style.css               # Custom styling with premium dark-mode glassmorphism
+│   └── app.js                  # JavaScript logic for upload handling, API requests, and Plotly/Chart.js rendering
+├── .gitignore                  # Git configurations to ignore pycache, venv, and large data files
+└── README.md                   # Project documentation
+```
 
 ## How to Run Locally
 
